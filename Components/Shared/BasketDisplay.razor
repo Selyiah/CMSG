@@ -1,0 +1,50 @@
+﻿@using CMSGTechnical.Code
+@using CMSGTechnical.Domain.Models
+@using CMSGTechnical.Mediator.Basket
+@using CMSGTechnical.Mediator.Dtos
+@using MediatR
+
+<div class="basket">
+    @foreach (var item in Basket.MenuItems)
+    {
+        <div class="basket-item">
+            <div>
+                <span>@item.Name - £@item.Price.ToString("F2")</span>
+            </div>
+            <div>
+                <button class="btn btn-primary btn-round" @onclick="() => AddItem(item)">+</button>
+                <button class="btn btn-primary btn-round" @onclick="() => RemoveItem(item)">-</button>
+            </div>
+        </div>
+    }
+    
+    <div class="mt-3">
+        Delivery Fee: £2.00
+    </div>
+    <div class="mt-3">
+        Total: £@BasketService.GetTotal().ToString("F2")
+    </div>
+</div>
+
+@code {
+    [Inject] private IMediator Mediator { get; set; } = default!;
+    private BasketDto Basket { get; set; } = new();
+    [CascadingParameter] private BasketService BasketService { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Basket = BasketService.Basket;
+        BasketService.OnChange += (sender, args) => StateHasChanged();
+    }
+
+    private async Task AddItem(MenuItemDto item)
+    {
+        await BasketService.Add(item);
+    }
+
+    private async Task RemoveItem(MenuItemDto item)
+    {
+        await BasketService.Remove(item);
+    }
+}
+

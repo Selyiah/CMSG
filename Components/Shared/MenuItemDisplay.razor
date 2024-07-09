@@ -1,0 +1,66 @@
+﻿@page "/menu"
+@using CMSGTechnical.Domain.Models
+@using CMSGTechnical.Mediator.Dtos
+@inject IMenuService MenuService
+
+<div class="menu-container">
+    @foreach (var category in GroupedMenuItems)
+    {
+        <h2>@category.Key</h2>
+        @foreach (var item in category)
+        {
+            <div class="menu-item">
+                <MenuItemComponent Item="item" OnAdd="HandleAdd" OnRemove="HandleRemove" />
+            </div>
+        }
+    }
+</div>
+
+<div class="mt-2 mb-2 d-flex justify-content-between">
+    <div> 
+        <div>
+            <strong>@Item.Name (<strong>£@Item.Price</strong>)</strong>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Item.Description))
+        {
+            <div>
+                @Item.Description
+            </div>
+        }
+    </div>
+    <div>
+        @if (OnAdd.HasDelegate)
+        {
+            <button class="btn btn-primary btn-round" @onclick="Add">+</button>
+        }
+        @if (OnRemove.HasDelegate)
+        {
+            <button class="btn btn-primary btn-round" @onclick="Remove">-</button>
+        }
+    </div>
+</div>
+
+
+@code {
+    private List<IGrouping<string, MenuItemDto>> GroupedMenuItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var menuItems = await MenuService.GetMenuItemsAsync();
+        GroupedMenuItems = menuItems.GroupBy(item => item.Category).ToList();
+    }
+
+    private Task HandleAdd(MenuItemDto item)
+    {
+        // Logic to handle adding item to basket
+        return Task.CompletedTask;
+    }
+
+    private Task HandleRemove(MenuItemDto item)
+    {
+        // Logic to handle removing item from basket
+        return Task.CompletedTask;
+    }
+}
+
